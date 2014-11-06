@@ -3,6 +3,7 @@
 // ==UserScript==
 // @name        HostEurope KIS: UI utils
 // @namespace   greasemonkey.web-enhance.pimpmybyte.de
+// @description
 // @include     https://kis.hosteurope.de/*
 // @version     1
 // @grant       GM_addStyle
