@@ -27,6 +27,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   EX.mkArr = Function.call.bind(Array.prototype.slice);
   EX.toUpper = function (text) { return String(text).toUpperCase(); };
 
+  EX.log = function () {
+    var msg = ['bkml: KIS domain groups:'];
+    console.log.apply(console, msg.concat(msg.slice.call(arguments)));
+  };
+  EX.dbg = ignoreFuncArgs;
+  // EX.dbg = EX.log;
+
   EX.main = function () {
     var crumbs;
     crumbs = jq('#breadcrumb').text().replace(/\b[a-z]/g, EX.toUpper
@@ -35,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       ).replace(/\b(Domains)ervices\b/g, '$1'
       ).replace(/\b(\w+)verwaltung\b/g, '$1'
       ).replace(/:\w+\s*\.+/g, '');
-    console.log('crumbs:', crumbs);
+    EX.dbg('crumbs:', crumbs);
 
     EX.enlargeSelectLists();
     EX.addHashHeadline();
@@ -49,6 +56,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       EX.domainMassUpdate_easeTopicSelection();
       EX.domainWhoisImExport_install();
       break;
+    default:
+      EX.dbg('breadcrumbs =', crumbs);
     }
   };
 
@@ -73,7 +82,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
   EX.domainMassUpdate_offerLookupGroups = function () {
     var lug = jq('select[name=submode]>option[value=domainupdate]');
-    if (lug.length !== 1) { return; }
+    if (lug.length !== 1) {
+      return EX.dbg('domain upd: lookup groups button dest:', lug);
+    }
     lug = { subModeSel: lug.parent() };
     lug.dmnLstTbl = lug.subModeSel.parents('table').first();
     if (lug.dmnLstTbl.length !== 1) { return; }
@@ -106,7 +117,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       });
       dmnHash = dmnHash.replace(/^,/, '#');
       lug.dmnLstForm.action = tgt + dmnHash;
-      // console.log(lug.dmnLstForm);
+      EX.dbg('dmnLstForm:', lug.dmnLstForm);
     };
     lug.dmnLstTbl.find('td>input[type=checkbox]').each(function (idx, ckb) {
       var dmnId = ckb.value, row = jq(ckb).parents('tr').first();
@@ -143,7 +154,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     };
     lug.recvDetect = function (rsp) {
       var refGrp = this;
-      // console.log('lug.recvDetect', refGrp, String(rsp || '').length);
+      EX.dbg('lug.recvDetect', refGrp, String(rsp || '').length);
       rsp = String(rsp.split(/id="headnav"/)[1] || '');
       rsp = String(rsp).replace(/[\s\n]+/g, ' ');
       rsp = String(rsp.split(/<b>Vorhandene Gruppen<\/b>/)[1] || '');
@@ -187,8 +198,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     };
     lug.whenHasDomainGroupDB = function () {
       window.domainGroupsDB = lug.dmnGrpDB;
-      console.log('finished domain group detection.',
-        'window.domainGroupsDB =', lug.dmnGrpDB);
+      EX.log('finished detection.', 'window.domainGroupsDB =', lug.dmnGrpDB);
       EX.sorted(lug.dmnGrpDB.byDomainName).forEach(function (domain) {
         var grpNameLinksDest, groupNames;
         domain = lug.dmnGrpDB.byDomainName[domain];
@@ -227,7 +237,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       }
       refGrp.domains[dmnName] = dmnId;
       domain.groups[refGrp.name] = refGrp.id;
-      // console.log(dmnName, domain, refGrp);
+      EX.dbg('parseGroupDomainRow:', dmnName, domain, refGrp);
     };
     lug.button.on('click', lug.tryDetect);
     return lug.tryDetect;
@@ -300,7 +310,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   EX.domainMassUpdate_easeTopicSelection = function () {
     var replyToSel = jq('table select[name=replyto]').first(), topicsTable,
       massUpdateForm, domainNames;
-    if (replyToSel.length !== 1) { return; }
+    if (replyToSel.length !== 1) {
+      return EX.dbg('domain upd: easeTopicSelection replyto=', replyToSel);
+    }
     massUpdateForm = jq(replyToSel[0].form);
     topicsTable = replyToSel.parents('table').first();
     domainNames = topicsTable.find('select[name=ownerid]:first'
